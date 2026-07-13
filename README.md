@@ -3,9 +3,7 @@ title: ICD Mind
 emoji: 🩺
 colorFrom: blue
 colorTo: indigo
-sdk: gradio
-sdk_version: "5.34.2"
-app_file: index.html
+sdk: static
 pinned: false
 ---
 
