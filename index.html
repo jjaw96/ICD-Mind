@@ -1,8 +1,8 @@
 <!doctype html>
 <html>
 <head>
-  <script type="module" src="https://gradio-lite-previews.s3.amazonaws.com/PINNED_HF_HUB/dist/lite.js"></script>
-  <link rel="stylesheet" href="https://gradio-lite-previews.s3.amazonaws.com/PINNED_HF_HUB/dist/lite.css">
+<script type="module" crossorigin src="https://cdn.jsdelivr.net/npm/@gradio/lite/dist/lite.js"></script>
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/npm/@gradio/lite/dist/lite.css">
 </head>
 <body>
 
@@ -17,7 +17,7 @@ gr.Interface(
     greet,
     "textbox",
     "textbox"
-)
+).launch()
 
 </gradio-lite>
 
