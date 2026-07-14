@@ -35,7 +35,7 @@ jobs:
         env:
           HF_USERNAME: ${{ vars.HF_USERNAME }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACENAME: ${{ vars.HF_SPACENAME }}
+          HF_SPACENAME: ${{ vars.HF_SPACE_NAME }}
         run: |
           git add -f dist/                    # include our new bundled js folder
           git commit -m "chore: update static bundle for HF Space" --allow-empty
