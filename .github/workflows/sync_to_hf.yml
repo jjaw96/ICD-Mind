@@ -21,10 +21,10 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Build React app
-        run: npm run build
+      - name: Build with esbuild
+        run: npx esbuild app.js --bundle --outfile=dist/bundle.js --format=esm
 
       - name: Configure Git
         run: |
@@ -35,8 +35,8 @@ jobs:
         env:
           HF_USERNAME: ${{ vars.HF_USERNAME }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          HF_SPACENAME: ${{ vars.HF_SPACE_NAME }}
+          HF_SPACENAME: ${{ vars.HF_SPACENAME }}
         run: |
-          git add -f dist/                    # include dist even if gitignored
-          git commit -m "chore: update React build for HF Space" --allow-empty
+          git add -f dist/                    # include our new bundled js folder
+          git commit -m "chore: update static bundle for HF Space" --allow-empty
           git push --force https://$HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HF_USERNAME/$HF_SPACENAME main

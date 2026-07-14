@@ -1,0 +1,1 @@
+npx esbuild app.js --bundle --outfile=dist/bundle.js --format=esm
