@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,12 +31,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Push to Hugging Face Space
+      - name: Commit and push to HF Space
         env:
           HF_USERNAME: ${{ vars.HF_USERNAME }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_SPACENAME: ${{ vars.HF_SPACE_NAME }}
         run: |
-          git add -f dist/          # force add dist even if gitignored
-          git commit -m "Build and sync to HF Space" || echo "No changes to commit"
+          git add -f dist/                    # include dist even if gitignored
+          git commit -m "chore: update React build for HF Space" --allow-empty
           git push --force https://$HF_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HF_USERNAME/$HF_SPACENAME main
