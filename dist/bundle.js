@@ -5235,19 +5235,19 @@ var BertNormalizer = class extends Normalizer_default {
    * @returns The tokenized text with whitespace added around CJK characters.
    */
   tokenize_chinese_chars(text) {
-    const output2 = [];
+    const output = [];
     for (let i = 0; i < text.length; ++i) {
       const char = text[i];
       const cp = char.charCodeAt(0);
       if (is_chinese_char(cp)) {
-        output2.push(" ");
-        output2.push(char);
-        output2.push(" ");
+        output.push(" ");
+        output.push(char);
+        output.push(" ");
       } else {
-        output2.push(char);
+        output.push(char);
       }
     }
-    return output2.join("");
+    return output.join("");
   }
   /**
    * Strips accents from the given text.
@@ -5278,19 +5278,19 @@ var BertNormalizer = class extends Normalizer_default {
    * @returns The cleaned text.
    */
   clean_text(text) {
-    const output2 = [];
+    const output = [];
     for (const char of text) {
       const cp = char.charCodeAt(0);
       if (cp === 0 || cp === 65533 || this.is_control(char)) {
         continue;
       }
       if (/^\s$/.test(char)) {
-        output2.push(" ");
+        output.push(" ");
       } else {
-        output2.push(char);
+        output.push(char);
       }
     }
-    return output2.join("");
+    return output.join("");
   }
   /**
    * Normalizes the given text based on the configuration.
@@ -9232,14 +9232,14 @@ var Interpreter = class {
             return new StringValue(toJSON(operand, {}, 0, false));
           case "unique": {
             const seen = /* @__PURE__ */ new Set();
-            const output2 = [];
+            const output = [];
             for (const item of operand.value) {
               if (!seen.has(item.value)) {
                 seen.add(item.value);
-                output2.push(item);
+                output.push(item);
               }
             }
-            return new ArrayValue(output2);
+            return new ArrayValue(output);
           }
           default:
             throw new Error(`Unknown ArrayValue filter: ${filter.value}`);
@@ -11949,7 +11949,7 @@ var NP2FFT = class {
     this._f = new P2FFT(nextP2 >> 1);
     this._f.transform(this._chirpBuffer, ichirp);
   }
-  _transform(output2, input, real) {
+  _transform(output, input, real) {
     const ib1 = this._buffer1;
     const ib2 = this._buffer2;
     const ob2 = this._outBuffer1;
@@ -11984,15 +11984,15 @@ var NP2FFT = class {
       const a_imag = ob3[j + a + 1];
       const b_real = sb[j];
       const b_imag = sb[j + 1];
-      output2[j] = a_real * b_real - a_imag * b_imag;
-      output2[j + 1] = a_real * b_imag + a_imag * b_real;
+      output[j] = a_real * b_real - a_imag * b_imag;
+      output[j + 1] = a_real * b_imag + a_imag * b_real;
     }
   }
-  transform(output2, input) {
-    this._transform(output2, input, false);
+  transform(output, input) {
+    this._transform(output, input, false);
   }
-  realTransform(output2, input) {
-    this._transform(output2, input, true);
+  realTransform(output, input) {
+    this._transform(output, input, true);
   }
 };
 var FFT = class {
@@ -14414,7 +14414,7 @@ function interpolate(input, [out_height, out_width], mode = "bilinear", align_co
   const in_channels = input.dims.at(-3) ?? 1;
   const in_height = input.dims.at(-2);
   const in_width = input.dims.at(-1);
-  const output2 = interpolate_data(
+  const output = interpolate_data(
     /** @type {import('./maths.js').TypedArray}*/
     input.data,
     [in_channels, in_height, in_width],
@@ -14422,7 +14422,7 @@ function interpolate(input, [out_height, out_width], mode = "bilinear", align_co
     mode,
     align_corners
   );
-  return new Tensor22(input.type, output2, [in_channels, out_height, out_width]);
+  return new Tensor22(input.type, output, [in_channels, out_height, out_width]);
 }
 async function interpolate_4d(input, { size = null, mode = "bilinear" } = {}) {
   if (input.dims.length !== 4) {
@@ -15786,13 +15786,13 @@ var WhisperTokenizer = class extends PreTrainedTokenizer {
     let skip = false;
     let right_stride_start = null;
     const all_special_ids = new Set(this.all_special_ids);
-    for (const output2 of sequences) {
-      const token_ids = output2.tokens;
-      const token_timestamps = returnWordTimestamps ? output2.token_timestamps : null;
+    for (const output of sequences) {
+      const token_ids = output.tokens;
+      const token_timestamps = returnWordTimestamps ? output.token_timestamps : null;
       let last_timestamp = null;
       let first_timestamp = timestamp_begin;
-      if ("stride" in output2) {
-        const [chunk_len, stride_left, stride_right] = output2.stride;
+      if ("stride" in output) {
+        const [chunk_len, stride_left, stride_right] = output.stride;
         time_offset -= stride_left;
         right_stride_start = chunk_len - stride_right;
         if (stride_left) {
@@ -15894,8 +15894,8 @@ var WhisperTokenizer = class extends PreTrainedTokenizer {
           }
         }
       }
-      if ("stride" in output2) {
-        const [chunk_len, stride_left, stride_right] = output2.stride;
+      if ("stride" in output) {
+        const [chunk_len, stride_left, stride_right] = output.stride;
         time_offset += chunk_len - stride_right;
       }
       if (current_tokens.length > 0) {
@@ -22822,8 +22822,8 @@ async function sessionRun(session, inputs) {
         return [k2, tensor];
       })
     );
-    const output2 = await runInferenceSession(session, ortFeed);
-    return replaceTensors(output2);
+    const output = await runInferenceSession(session, ortFeed);
+    return replaceTensors(output);
   } catch (e) {
     const formatted = Object.fromEntries(
       Object.entries(checkedInputs).map(([k2, tensor]) => {
@@ -25060,8 +25060,8 @@ var PreTrainedModel = class extends Callable {
       throw new Error(`Model does not have a ${sessionName} session.`);
     }
     const session = this.sessions[sessionName];
-    const output2 = await sessionRun(session, pick(inputs, session.inputNames));
-    return output2[outputName];
+    const output = await sessionRun(session, pick(inputs, session.inputNames));
+    return output[outputName];
   }
   async encode_image(inputs) {
     return this._encode_input("vision_encoder", inputs, "image_features");
@@ -31406,8 +31406,8 @@ Pipeline {
     const function_to_apply = problem_type === "multi_label_classification" ? (batch) => batch.sigmoid() : (batch) => new Tensor22("float32", softmax(batch.data), batch.dims);
     const toReturn = [];
     for (const batch of outputs.logits) {
-      const output2 = function_to_apply(batch);
-      const scores = await topk(output2, top_k);
+      const output = function_to_apply(batch);
+      const scores = await topk(output, top_k);
       const values = scores[0].tolist();
       const indices = scores[1].tolist();
       const vals = indices.map((x, i) => ({
@@ -31845,8 +31845,8 @@ Pipeline {
     const toReturn = [];
     for (const aud of preparedAudios) {
       const inputs = await this.processor(aud);
-      const output2 = await this.model(inputs);
-      const logits = output2.logits[0];
+      const output = await this.model(inputs);
+      const logits = output.logits[0];
       const scores = await topk(new Tensor22("float32", softmax(logits.data), logits.dims), top_k);
       const values = scores[0].tolist();
       const indices = scores[1].tolist();
@@ -31885,8 +31885,8 @@ Pipeline {
     const toReturn = [];
     for (const aud of preparedAudios) {
       const audio_inputs = await this.processor(aud);
-      const output2 = await this.model({ ...text_inputs, ...audio_inputs });
-      const probs = softmax(output2.logits_per_audio.data);
+      const output = await this.model({ ...text_inputs, ...audio_inputs });
+      const probs = softmax(output.logits_per_audio.data);
       toReturn.push(
         [...probs].map((x, i) => ({
           score: x,
@@ -31944,8 +31944,8 @@ Pipeline {
     const toReturn = [];
     for (const aud of preparedAudios) {
       const inputs = await this.processor(aud);
-      const output2 = await this.model(inputs);
-      const logits = output2.logits[0];
+      const output = await this.model(inputs);
+      const logits = output.logits[0];
       const predicted_ids = [];
       for (const item of logits) {
         predicted_ids.push(max(item.data)[1]);
@@ -32213,10 +32213,10 @@ Pipeline {
     const toReturn = [];
     for (const batch of pixel_values) {
       batch.dims = [1, ...batch.dims];
-      const output2 = await this.model.generate({ inputs: batch, ...generate_kwargs });
+      const output = await this.model.generate({ inputs: batch, ...generate_kwargs });
       const decoded = this.tokenizer.batch_decode(
         /** @type {Tensor} */
-        output2,
+        output,
         {
           skip_special_tokens: true
         }
@@ -32231,10 +32231,10 @@ Pipeline {
   async _call(images, { top_k = 5 } = {}) {
     const preparedImages = await prepareImages(images);
     const { pixel_values } = await this.processor(preparedImages);
-    const output2 = await this.model({ pixel_values });
+    const output = await this.model({ pixel_values });
     const { id2label } = this.model.config;
     const toReturn = [];
-    for (const batch of output2.logits) {
+    for (const batch of output.logits) {
       const scores = await topk(new Tensor22("float32", softmax(batch.data), batch.dims), top_k);
       const values = scores[0].tolist();
       const indices = scores[1].tolist();
@@ -32288,7 +32288,7 @@ Pipeline {
       }
       inputs[newName] = inputs.pixel_values;
     }
-    const output2 = await this.model(inputs);
+    const output = await this.model(inputs);
     let fn2 = null;
     if (subtask !== null) {
       fn2 = SUBTASKS_MAPPING[subtask];
@@ -32305,7 +32305,7 @@ Pipeline {
     const annotation = [];
     if (!subtask) {
       const epsilon = 1e-5;
-      const result = output2[outputNames[0]];
+      const result = output[outputNames[0]];
       for (let i = 0; i < imageSizes.length; ++i) {
         const size = imageSizes[i];
         const item = result[i];
@@ -32321,7 +32321,7 @@ Pipeline {
       }
     } else if (subtask === "panoptic" || subtask === "instance") {
       const processed = fn2(
-        output2,
+        output,
         threshold,
         mask_threshold,
         overlap_mask_area_threshold,
@@ -32345,7 +32345,7 @@ Pipeline {
         });
       }
     } else if (subtask === "semantic") {
-      const { segmentation, labels } = fn2(output2, target_sizes ?? imageSizes)[0];
+      const { segmentation, labels } = fn2(output, target_sizes ?? imageSizes)[0];
       for (const label of labels) {
         const maskData = new Uint8ClampedArray(segmentation.data.length);
         for (let i = 0; i < segmentation.data.length; ++i) {
@@ -32391,10 +32391,10 @@ Pipeline {
       truncation: true
     });
     const { pixel_values } = await this.processor(preparedImages);
-    const output2 = await this.model({ ...text_inputs, pixel_values });
+    const output = await this.model({ ...text_inputs, pixel_values });
     const function_to_apply = this.model.config.model_type === "siglip" ? (batch) => batch.sigmoid().data : (batch) => softmax(batch.data);
     const toReturn = [];
-    for (const batch of output2.logits_per_image) {
+    for (const batch of output.logits_per_image) {
       const probs = function_to_apply(batch);
       const result = [...probs].map((x, i) => ({
         score: x,
@@ -32416,8 +32416,8 @@ Pipeline {
     const preparedImages = await prepareImages(images);
     const imageSizes = percentage ? null : preparedImages.map((x) => [x.height, x.width]);
     const { pixel_values, pixel_mask } = await this.processor(preparedImages);
-    const output2 = await this.model({ pixel_values, pixel_mask });
-    const processed = this.processor.image_processor.post_process_object_detection(output2, threshold, imageSizes);
+    const output = await this.model({ pixel_values, pixel_mask });
+    const processed = this.processor.image_processor.post_process_object_detection(output, threshold, imageSizes);
     const { id2label } = this.model.config;
     const result = processed.map(
       (batch) => batch.boxes.map((box, i) => ({
@@ -32444,10 +32444,10 @@ Pipeline {
       const image = preparedImages[i];
       const imageSize = percentage ? null : [[image.height, image.width]];
       const pixel_values = model_inputs.pixel_values[i].unsqueeze_(0);
-      const output2 = await this.model({ ...text_inputs, pixel_values });
+      const output = await this.model({ ...text_inputs, pixel_values });
       let result;
       if ("post_process_grounded_object_detection" in this.processor) {
-        const processed = this.processor.post_process_grounded_object_detection(output2, text_inputs.input_ids, {
+        const processed = this.processor.post_process_grounded_object_detection(output, text_inputs.input_ids, {
           // TODO: support separate threshold values
           box_threshold: threshold,
           text_threshold: threshold,
@@ -32460,7 +32460,7 @@ Pipeline {
         }));
       } else {
         const processed = this.processor.image_processor.post_process_object_detection(
-          output2,
+          output,
           threshold,
           imageSize,
           true
@@ -32500,7 +32500,7 @@ Pipeline {
       padding: true,
       truncation: true
     }).input_ids;
-    const output2 = await this.model.generate({
+    const output = await this.model.generate({
       inputs: pixel_values,
       // @ts-expect-error Ts2339
       max_length: this.model.config.decoder.max_position_embeddings,
@@ -32510,7 +32510,7 @@ Pipeline {
     });
     const decoded = this.tokenizer.batch_decode(
       /** @type {Tensor} */
-      output2
+      output
     )[0];
     const match = decoded.match(/<s_answer>(.*?)<\/s_answer>/);
     let answer = null;
@@ -32528,8 +32528,8 @@ Pipeline {
     const outputs = await this.model(inputs);
     const toReturn = [];
     for (const batch of outputs.reconstruction) {
-      const output2 = batch.squeeze().clamp_(0, 1).mul_(255).round_().to("uint8");
-      toReturn.push(RawImage.fromTensor(output2));
+      const output = batch.squeeze().clamp_(0, 1).mul_(255).round_().to("uint8");
+      toReturn.push(RawImage.fromTensor(output));
     }
     return Array.isArray(images) ? toReturn : toReturn[0];
   }
@@ -32995,12 +32995,84 @@ var stdout_write = apis.IS_PROCESS_AVAILABLE ? (x) => process.stdout.write(x) : 
 var CONCRETE_DTYPES = Object.keys(DEFAULT_DTYPE_SUFFIX_MAPPING);
 
 // app.js
-var extractor = await pipeline2("feature-extraction", "Xenova/all-MiniLM-L6-v2");
-var output = await extractor("Acute myocardial infarction of anterolateral wall", {
-  pooling: "mean",
-  normalize: true
+var ICD_DATABASE = [
+  { code: "I21.9", description: "Acute myocardial infarction, unspecified (Heart Attack)" },
+  { code: "J45.909", description: "Unspecified asthma, uncomplicated" },
+  { code: "E11.9", description: "Type 2 diabetes mellitus without complications" },
+  { code: "M54.50", description: "Low back pain, unspecified" },
+  { code: "G43.909", description: "Migraine, unspecified, not intractable, without status migrainosus" }
+];
+function cosineSimilarity(vecA, vecB) {
+  let dotProduct = 0;
+  let normA = 0;
+  let normB = 0;
+  for (let i = 0; i < vecA.length; i++) {
+    dotProduct += vecA[i] * vecB[i];
+    normA += vecA[i] * vecA[i];
+    normB += vecB[i] * vecB[i];
+  }
+  return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+var extractorInstance = null;
+async function runMedicalRAG(userQuery) {
+  const statusDiv = document.getElementById("statusMessage");
+  const resultsDiv = document.getElementById("resultsContainer");
+  if (!userQuery || !userQuery.trim()) {
+    alert("Please enter a note or symptoms first!");
+    return;
+  }
+  resultsDiv.innerHTML = "";
+  statusDiv.innerText = "Processing symptoms via local AI model...";
+  try {
+    if (!extractorInstance) {
+      statusDiv.innerText = "Downloading and configuring local model weights...";
+      extractorInstance = await pipeline2("feature-extraction", "Xenova/all-MiniLM-L6-v2");
+    }
+    statusDiv.innerText = "Analyzing text vectors...";
+    const queryTensor = await extractorInstance(userQuery, { pooling: "mean", normalize: true });
+    const queryVector = queryTensor.tolist()[0];
+    const results = [];
+    for (const item of ICD_DATABASE) {
+      const itemTensor = await extractorInstance(item.description, { pooling: "mean", normalize: true });
+      const itemVector = itemTensor.tolist()[0];
+      const similarity = cosineSimilarity(queryVector, itemVector);
+      results.push({ ...item, similarity });
+    }
+    results.sort((a, b) => b.similarity - a.similarity);
+    statusDiv.innerText = "Analysis Ready!";
+    results.forEach((match) => {
+      const matchPercentage = (match.similarity * 100).toFixed(1);
+      const card = document.createElement("div");
+      card.style.border = "1px solid #ddd";
+      card.style.padding = "12px";
+      card.style.marginBottom = "10px";
+      card.style.borderRadius = "4px";
+      card.style.backgroundColor = match.similarity > 0.2 ? "#f0fdf4" : "#ffffff";
+      card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; font-family: sans-serif;">
+                    <strong style="font-size: 18px; color: #1e1b4b;">Code: ${match.code}</strong>
+                    <span style="background: #e0e7ff; padding: 2px 8px; border-radius: 12px; font-size: 14px; font-weight: bold; color: #4f46e5;">
+                        ${matchPercentage}% Match
+                    </span>
+                </div>
+                <p style="margin: 6px 0 0 0; color: #4b5563; font-family: sans-serif;">${match.description}</p>
+            `;
+      resultsDiv.appendChild(card);
+    });
+  } catch (err) {
+    statusDiv.innerText = "Error extracting semantic similarities.";
+    console.error(err);
+  }
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const searchBtn = document.getElementById("searchBtn");
+  if (searchBtn) {
+    searchBtn.addEventListener("click", () => {
+      const noteValue = document.getElementById("clinicalNote").value;
+      runMedicalRAG(noteValue);
+    });
+  }
 });
-console.log(output.data);
 /*! Bundled license information:
 
 onnxruntime-web/dist/ort.webgpu.bundle.min.mjs:
