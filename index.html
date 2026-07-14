@@ -1,51 +1,13 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
   <head>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@gradio/lite@5.34.2/dist/lite.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gradio/lite@5.34.2/dist/lite.css" />
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>icd-mind</title>
   </head>
   <body>
-    <gradio-lite>
-<gradio-requirements>
-huggingface-hub==0.26.2
-openai
-</gradio-requirements>
-
-import gradio as gr
-from openai import OpenAI
-
-def analyze_note(clinical_note, openai_key):
-    if not openai_key:
-        return "Please enter your OpenAI API key to run the analysis."
-        
-    try:
-        # Initialize the OpenAI client right inside the browser environment
-        client = OpenAI(api_key=openai_key)
-        
-        # (This is where your RAG search steps will go later!)
-        # For now, let's just pass the note directly to GPT-4o-mini
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are an expert medical coding assistant."},
-                {"role": "user", "content": f"Extract diagnoses from this note: {clinical_note}"}
-            ]
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        return f"Error connecting to OpenAI: {str(e)}"
-
-# Define the dual-input UI layout
-demo = gr.Interface(
-    fn=analyze_note,
-    inputs=[
-        gr.Textbox(lines=5, label="Clinical Note"),
-        gr.Textbox(label="OpenAI API Key", type="password", placeholder="sk-...")
-    ],
-    outputs=gr.Textbox(label="GPT-4 Analysis Results"),
-    title="ICD-Mind (Secure Browser Edition)"
-)
-demo.launch()
-    </gradio-lite>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
