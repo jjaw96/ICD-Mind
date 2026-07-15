@@ -14,13 +14,13 @@ Check it out here: https://huggingface.co/spaces/jjaw96/ICD-Mind
 Pure Vanilla JS + Transformers.js application.
 
 # How to contribute
-**Build**
+### Build
 Pull the project locally
 Download the Live Server plugin for VSCode
 Run build.bash to create the /dist folder
 Press "Go Live" in VSCode index.html file
 
-**Developing Features**
+### Developing Features
 Create a feature branch off of main
 Develop your feature and create a pull request
 Once approved and merged into main, the huggingface space will rebuild.
